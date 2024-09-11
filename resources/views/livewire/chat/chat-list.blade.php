@@ -9,6 +9,13 @@ x-init="
             conversationElement.scrollIntoView({'behaviour': 'smooth'});
         }
     }, 200)
+    Echo.private('users.{{Auth()->User()->id}}')
+    .notification((notification)=>{
+        if(notification['type']== 'App\\Notifications\\MessageRead'||notification['type']== 'App\\Notifications\\MessageSent')
+        {
+          $wire.$refresh();
+        }
+    });
 "
 class="flex flex-col transition-all h-full overflow-hidden">
     <header class="px-3 z-10 bg-white sticky top-0 w-full py-2">
@@ -129,6 +136,8 @@ class="flex flex-col transition-all h-full overflow-hidden">
 
                                             </button>
                                             <button
+                                            onclick="confirm('Are you sure?') || event.stopImmediatePropagation()"
+                                            wire:click="deleteByUser({{$conversation->id}})"
                                             class="items-center gap-3 flex w-full px-4 py-2 text-left text-sm leading-5 text-gray-500 hover:bg-gray-100 transition-all duration-150 ease-in-out focus:outline-none focus:bg-gray-100">
 
                                                 <span>

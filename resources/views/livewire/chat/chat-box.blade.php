@@ -1,22 +1,27 @@
 <div
- x-data="{
-    height:0,
-    conversationElement:document.getElementById('conversation'),
-    markAsRead:null
-}"
- x-init="
-        height= conversationElement.scrollHeight;
-        $nextTick(()=>conversationElement.scrollTop= height);
+    x-data="{
+        height:0,
+        conversationElement:document.getElementById('conversation'),
+        markAsRead:null
+    }"
+    x-init="
+    height = conversationElement.scrollHeight;
+    $nextTick(() => conversationElement.scrollTop = height);
+    Echo.private('users.' + {{ auth()->id() }})
+    .notification((notification) => {
+        if (notification['type'] === 'App\\Notifications\\MessageRead' && notification['conversation_id'] === {{ $selectedConversation->id }}) {
+            markAsRead = true;
+        }
+    });
+    "
 
- "
+    @scroll-bottom.window="
+    $nextTick(()=>
+    conversationElement.scrollTop= conversationElement.scrollHeight
+    );
+    "
 
- @scroll-bottom.window="
- $nextTick(()=>
- conversationElement.scrollTop= conversationElement.scrollHeight
- );
- "
-
-class="w-full overflow-hidden">
+    class="w-full overflow-hidden">
 
     <div class="border-b flex flex-col overflow-y-scroll grow h-full">
 

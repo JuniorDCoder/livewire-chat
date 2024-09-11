@@ -27,6 +27,20 @@ class Conversation extends Model
             return User::firstWhere('id', $this->sender_id);
         }
     }
+    public function scopeWhereNotDeleted($query){
+        $userId = auth()->id();
+
+        return $query->where(function($query) use ($userId){
+            $query->whereHas('messages', function($query) use ($userId){
+                $query->where(function($query) use ($userId){
+                    $query->where('sender_id', $userId)->whereNull('sender_deleted_at');
+                })->orWhere(function($query) use ($userId){
+                    $query->where('receiver_id', $userId)->whereNull('receiver_deleted_at');
+                });
+            });
+        })->orWhereDoesntHave('messages');
+    }
+
 
     public function isLastMessageReadByUser(): bool{
         $user  = auth()->user();
@@ -38,6 +52,7 @@ class Conversation extends Model
 
         return false;
     }
+
 
     public function unReadMessagesCount(): int
     {
